@@ -1,19 +1,56 @@
 package com.thecout.lox.Parser;
 
 
-import com.thecout.lox.Parser.Expr.Expr;
-import com.thecout.lox.Parser.Expr.Logical;
-import com.thecout.lox.Parser.Stmts.Block;
-import com.thecout.lox.Parser.Stmts.Function;
-import com.thecout.lox.Parser.Stmts.If;
-import com.thecout.lox.Parser.Stmts.Stmt;
-import com.thecout.lox.Token;
-import com.thecout.lox.TokenType;
+import static com.thecout.lox.TokenType.COMMA;
+import static com.thecout.lox.TokenType.ELSE;
+import static com.thecout.lox.TokenType.EOF;
+import static com.thecout.lox.TokenType.EQUAL;
+import static com.thecout.lox.TokenType.FOR;
+import static com.thecout.lox.TokenType.FUN;
+import static com.thecout.lox.TokenType.IDENTIFIER;
+import static com.thecout.lox.TokenType.IF;
+import static com.thecout.lox.TokenType.LEFT_BRACE;
+import static com.thecout.lox.TokenType.LEFT_PAREN;
+import static com.thecout.lox.TokenType.MINUS;
+import static com.thecout.lox.TokenType.OR;
+import static com.thecout.lox.TokenType.PLUS;
+import static com.thecout.lox.TokenType.PRINT;
+import static com.thecout.lox.TokenType.RETURN;
+import static com.thecout.lox.TokenType.RIGHT_BRACE;
+import static com.thecout.lox.TokenType.RIGHT_PAREN;
+import static com.thecout.lox.TokenType.SEMICOLON;
+import static com.thecout.lox.TokenType.VAR;
+import static com.thecout.lox.TokenType.WHILE;
+import static com.thecout.lox.TokenType.BANG;
+import static com.thecout.lox.TokenType.SLASH;
+import static com.thecout.lox.TokenType.STAR;
+import static com.thecout.lox.TokenType.AND;
+import static com.thecout.lox.TokenType.EQUAL_EQUAL;
+import static com.thecout.lox.TokenType.BANG_EQUAL;
+import static com.thecout.lox.TokenType.DOT;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.thecout.lox.TokenType.*;
+import com.thecout.lox.Token;
+import com.thecout.lox.TokenType;
+import com.thecout.lox.Parser.Expr.Assign;
+import com.thecout.lox.Parser.Expr.Binary;
+import com.thecout.lox.Parser.Expr.Call;
+import com.thecout.lox.Parser.Expr.Expr;
+import com.thecout.lox.Parser.Expr.Literal;
+import com.thecout.lox.Parser.Expr.Logical;
+import com.thecout.lox.Parser.Expr.Unary;
+import com.thecout.lox.Parser.Expr.Variable;
+import com.thecout.lox.Parser.Stmts.Block;
+import com.thecout.lox.Parser.Stmts.Expression;
+import com.thecout.lox.Parser.Stmts.Function;
+import com.thecout.lox.Parser.Stmts.If;
+import com.thecout.lox.Parser.Stmts.Print;
+import com.thecout.lox.Parser.Stmts.Return;
+import com.thecout.lox.Parser.Stmts.Stmt;
+import com.thecout.lox.Parser.Stmts.Var;
+import com.thecout.lox.Parser.Stmts.While;
 
 public class Parser {
     private static class ParseError extends RuntimeException {
@@ -41,7 +78,7 @@ public class Parser {
 
     private Stmt declaration() {
         try {
-            if (match(FUN)) return function("function");
+            if (match(FUN)) return function();
             if (match(VAR)) return varDeclaration();
 
             return statement();
@@ -62,8 +99,15 @@ public class Parser {
     }
 
     private Stmt forStatement() {
-
-        return null;
+    	consume(LEFT_PAREN, "Expect '(' after 'for'.");
+    	if (match(VAR)) {
+    		varDeclaration();
+    	} else if (!match(SEMICOLON)) {
+    		expressionStatement();
+    	}
+    	consume(RIGHT_PAREN, "Expect ')' after 'for' stmt.");
+    	Stmt stmt = statement();
+        return new While(null, stmt);
     }
 
     private Stmt ifStatement() {
@@ -81,35 +125,63 @@ public class Parser {
     }
 
     private Stmt printStatement() {
-        return null;
+    	Expr expr = expression();
+    	consume(SEMICOLON, "Expected ';' after print stmt.");
+        return new Print(expr);
     }
 
     private Stmt returnStatement() {
-        return null;
+    	Expr expr = expression();
+    	consume(SEMICOLON, "Expected ';' at end of return stmt.");
+        return new Return(tokens.get(current), expr);
     }
 
     private Stmt varDeclaration() {
-        return null;
+    	Token id = consume(IDENTIFIER, "Expected identifier after variable keyword.");
+    	consume(EQUAL, "Ecpected '=' after identifier");
+    	Expr expr = expression();
+    	consume(SEMICOLON, "Expected ';' after variable declaration.");
+        return new Var(id, expr);
     }
 
     private Stmt whileStatement() {
-        return null;
+    	consume(LEFT_PAREN, "Expected '(' after 'while'.");
+    	Expr expr = expression();
+    	consume(RIGHT_PAREN, "Expected ')' after while condition.");
+    	Stmt stmt = statement();
+        return new While(expr, stmt);
     }
 
     private Stmt expressionStatement() {
-        return null;
+    	Expr expr = expression();
+    	consume(SEMICOLON, "Expected ';'.");
+        return new Expression(expr);
     }
 
-    private Function function(String kind) {
-        return null;
+    private Function function() {
+    	Token id = consume(IDENTIFIER, "Expected identifier after 'fun'.");
+    	consume(LEFT_PAREN, "Expected '(' after identifier.");
+    	List<Token> params = new ArrayList<>();
+    	while(!match(RIGHT_PAREN)) {
+    		params.add(consume(IDENTIFIER, "Expected identifier."));
+    		match(COMMA);
+    	}
+    	consume(LEFT_BRACE, "Expected '{' before block.");
+    	List<Stmt> block = block();
+        return new Function(id, params, block);
     }
 
     private List<Stmt> block() {
-        return null;
+    	List<Stmt> stmts = new ArrayList<>();
+    	while(!match(RIGHT_BRACE)) {
+        	stmts.add(declaration());
+    	}
+        return stmts;
     }
 
     private Expr assignment() {
-        return null;
+    	Expr expr = or();
+        return new Assign(previous(), expr);
     }
 
     private Expr or() {
@@ -125,27 +197,60 @@ public class Parser {
     }
 
     private Expr and() {
-        return null;
+    	Expr equ = equality();
+    	while(match(AND)) {
+    		Token operator = previous();
+    		Expr right = equality();
+    		equ = new Logical(equ, operator, right);
+    	}
+        return equ;
     }
 
     private Expr equality() {
-        return null;
+    	Expr comp = comparison();
+    	while(match(BANG_EQUAL) || match(EQUAL_EQUAL)) {
+    		Token operator = previous();
+    		Expr right = comparison();
+    		comp = new Logical(comp, operator, right);
+    	}
+        return comp;
     }
 
     private Expr comparison() {
-        return null;
+    	Expr add = addition();
+    	while(match(MINUS) || match(PLUS)) {
+    		Token operator = previous();
+    		Expr right = addition();
+    		add = new Binary(add, operator, right);
+    	}
+        return add;
     }
 
     private Expr addition() {
-        return null;
+    	Expr mult = multiplication();
+    	while (match(MINUS) || match(PLUS)) {
+    		Token operator = previous();
+    		Expr right = multiplication();
+    		mult = new Binary(mult, operator, right);
+    	}
+        return mult;
     }
 
     private Expr multiplication() {
-        return null;
+    	Expr unary = unary();
+    	while (match(SLASH) || match(STAR)) {
+    		Token operator = previous();
+    		Expr right = unary();
+    		unary = new Unary(operator, right);
+    	}
+        return unary;
     }
 
     private Expr unary() {
-        return null;
+    	if (match(BANG) || match(MINUS)) {
+    		return new Unary(previous(), null);
+    	}
+        return call();
     }
 
     private Expr finishCall(Expr callee) {
@@ -153,11 +258,27 @@ public class Parser {
     }
 
     private Expr call() {
-        return null;
+        return primary();
+    }
+    
+    private List<Expr> arguments() {
+    	List<Expr> exprs = new ArrayList<>();
+    	while(!match(RIGHT_PAREN)) {
+    		exprs.add(expression());
+    		match(COMMA);
+    	}
+    	return exprs;
     }
 
     private Expr primary() {
-        return null;
+    	if (match(LEFT_PAREN)) {
+    		return expression();
+    	}
+    	if (match(IDENTIFIER)) {
+            return new Variable(previous());
+    	}
+    	Token value = consume(tokens.get(current).type, "");
+    	return new Literal(value.literal);
     }
 
     private boolean match(TokenType... types) {

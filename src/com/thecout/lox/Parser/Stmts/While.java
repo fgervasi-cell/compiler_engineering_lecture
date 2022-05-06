@@ -9,8 +9,8 @@ public class While extends Stmt {
     }
 
 
-    final Expr condition;
-    final Stmt body;
+    public final Expr condition;
+    public final Stmt body;
 
     @Override
     public String print() {

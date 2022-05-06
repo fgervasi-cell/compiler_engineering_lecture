@@ -8,7 +8,7 @@ public class Print extends Stmt {
     }
 
 
-    final Expr expression;
+    public final Expr expression;
 
     @Override
     public String print() {

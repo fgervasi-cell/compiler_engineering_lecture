@@ -8,7 +8,7 @@ public class Block extends Stmt {
         this.statements = statements;
     }
 
-    final List<Stmt> statements;
+    public final List<Stmt> statements;
 
     @Override
     public String print() {

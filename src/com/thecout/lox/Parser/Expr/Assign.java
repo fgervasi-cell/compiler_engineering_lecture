@@ -8,8 +8,8 @@ public class Assign extends Expr {
         this.value = value;
     }
 
-    final Token name;
-    final Expr value;
+    public final Token name;
+    public final Expr value;
 
     @Override
     public String print() {
