@@ -98,7 +98,7 @@ public class Parser {
         return expressionStatement();
     }
 
-    private Stmt forStatement() {
+    private Stmt forStatement() { // TODO
     	consume(LEFT_PAREN, "Expect '(' after 'for'.");
     	if (match(VAR)) {
     		varDeclaration();
@@ -130,7 +130,7 @@ public class Parser {
         return new Print(expr);
     }
 
-    private Stmt returnStatement() {
+    private Stmt returnStatement() { // TODO: how to test if expression or something like this is there?
     	Expr expr = expression();
     	consume(SEMICOLON, "Expected ';' at end of return stmt.");
         return new Return(tokens.get(current), expr);
@@ -138,8 +138,10 @@ public class Parser {
 
     private Stmt varDeclaration() {
     	Token id = consume(IDENTIFIER, "Expected identifier after variable keyword.");
-    	consume(EQUAL, "Ecpected '=' after identifier");
-    	Expr expr = expression();
+    	Expr expr = null;
+    	if (match(EQUAL)) {
+    		expr = expression();
+    	}
     	consume(SEMICOLON, "Expected ';' after variable declaration.");
         return new Var(id, expr);
     }
@@ -180,7 +182,13 @@ public class Parser {
     }
 
     private Expr assignment() {
-    	Expr expr = or();
+    	Expr expr = null;
+    	if (match(IDENTIFIER)) {
+    		consume(EQUAL, "Expected '=' after identifier for assignment.");
+    		expr = assignment();
+    	} else {
+    		expr = or();
+    	}
         return new Assign(previous(), expr);
     }
 
@@ -216,7 +224,7 @@ public class Parser {
         return comp;
     }
 
-    private Expr comparison() {
+    private Expr comparison() { // TODO
     	Expr add = addition();
     	while(match(MINUS) || match(PLUS)) {
     		Token operator = previous();
@@ -258,26 +266,33 @@ public class Parser {
     }
 
     private Expr call() {
-        return primary();
+    	Expr expr = primary();
+    	List<Expr> exprs = new ArrayList<>();
+    	if (match(LEFT_PAREN)) {
+    		exprs = arguments();
+    		consume(RIGHT_PAREN, "Expected ')'.");
+    	}
+        return new Call(expr, exprs);
     }
     
     private List<Expr> arguments() {
     	List<Expr> exprs = new ArrayList<>();
-    	while(!match(RIGHT_PAREN)) {
+    	exprs.add(expression());
+    	while(match(COMMA)) {
     		exprs.add(expression());
-    		match(COMMA);
     	}
     	return exprs;
     }
 
     private Expr primary() {
     	if (match(LEFT_PAREN)) {
-    		return expression();
-    	}
-    	if (match(IDENTIFIER)) {
+    		Expr expr = expression();
+    		consume(RIGHT_PAREN, "Expected ')'.");
+    		return expr;
+    	} else if (match(IDENTIFIER)) {
             return new Variable(previous());
-    	}
-    	Token value = consume(tokens.get(current).type, "");
+    	} 
+    	Token value = consume(tokens.get(current).type, "Parsing literal NUMBER | STRING | NIL | TRUE | FALSE.");
     	return new Literal(value.literal);
     }
 
