@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import com.thecout.lox.Parser.Parser;
 import com.thecout.lox.Parser.Expr.Assign;
+import com.thecout.lox.Parser.Expr.Call;
 import com.thecout.lox.Parser.Expr.Literal;
 import com.thecout.lox.Parser.Stmts.Block;
 import com.thecout.lox.Parser.Stmts.Function;
@@ -42,20 +43,20 @@ public class ParserTest {
         assertEquals(((Function) statements.get(0)).parameters.get(0).type, TokenType.IDENTIFIER, "Expected first function parameter to be identifier");
     }
     
-//    @Test 
-//    void parsePrgrm2() {
-//    	Scanner scanner = new Scanner(program2);
-//    	List<Token> actual = scanner.scan();
-//    	Parser parser = new Parser(actual);
-//    	List<Stmt> statements = parser.parse();
-//    	assertTrue(statements.get(0) instanceof While, "Expected Type While got " + actual.get(0).getClass().getName());
-//    	While w = (While) statements.get(0);
-//    	assertTrue(w.body instanceof Block, "Expected Type Block as body");
-//    	assertTrue(((Block) w.body).statements.get(0) instanceof Print, "Expected Type Print in body");
-//    	Print p = (Print) ((Block) w.body).statements.get(0);
-//    	assertTrue(p.expression instanceof Assign, "Expected Assign got " + p.expression.getClass().getName());
-//    	assertTrue(w.condition instanceof Assign, "Expected Assign got " + w.condition.getClass().getName());
-//    	Assign cond = (Assign) w.condition;
-//    	assertTrue(cond.value instanceof Literal, "Expected boolean literal 'true'");
-//    }
+    @Test 
+    void parsePrgrm2() {
+    	Scanner scanner = new Scanner(program2);
+    	List<Token> actual = scanner.scan();
+    	Parser parser = new Parser(actual);
+    	List<Stmt> statements = parser.parse();
+    	assertTrue(statements.get(0) instanceof While, "Expected Type While got " + actual.get(0).getClass().getName());
+    	While w = (While) statements.get(0);
+    	assertTrue(w.body instanceof Block, "Expected Type Block as body");
+    	assertTrue(((Block) w.body).statements.get(0) instanceof Print, "Expected Type Print in body");
+    	Print p = (Print) ((Block) w.body).statements.get(0);
+    	assertTrue(p.expression instanceof Assign, "Expected Assign got " + p.expression.getClass().getName());
+    	assertTrue(w.condition instanceof Assign, "Expected Assign got " + w.condition.getClass().getName());
+    	Assign cond = (Assign) w.condition;
+    	assertTrue(((Call)cond.value).callee instanceof Literal, "Expected boolean literal 'true'");
+    }
 }

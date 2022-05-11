@@ -10,7 +10,7 @@ public class Call extends Expr {
     }
 
 
-    final Expr callee;
+    public final Expr callee;
     final List<Expr> arguments;
 
     @Override
