@@ -1,16 +1,24 @@
 package com.thecout.lox.Parser;
 
 
+import static com.thecout.lox.TokenType.AND;
+import static com.thecout.lox.TokenType.BANG;
+import static com.thecout.lox.TokenType.BANG_EQUAL;
 import static com.thecout.lox.TokenType.COMMA;
 import static com.thecout.lox.TokenType.ELSE;
 import static com.thecout.lox.TokenType.EOF;
 import static com.thecout.lox.TokenType.EQUAL;
+import static com.thecout.lox.TokenType.EQUAL_EQUAL;
 import static com.thecout.lox.TokenType.FOR;
 import static com.thecout.lox.TokenType.FUN;
+import static com.thecout.lox.TokenType.GREATER;
+import static com.thecout.lox.TokenType.GREATER_EQUAL;
 import static com.thecout.lox.TokenType.IDENTIFIER;
 import static com.thecout.lox.TokenType.IF;
 import static com.thecout.lox.TokenType.LEFT_BRACE;
 import static com.thecout.lox.TokenType.LEFT_PAREN;
+import static com.thecout.lox.TokenType.LESS;
+import static com.thecout.lox.TokenType.LESS_EQUAL;
 import static com.thecout.lox.TokenType.MINUS;
 import static com.thecout.lox.TokenType.OR;
 import static com.thecout.lox.TokenType.PLUS;
@@ -19,17 +27,13 @@ import static com.thecout.lox.TokenType.RETURN;
 import static com.thecout.lox.TokenType.RIGHT_BRACE;
 import static com.thecout.lox.TokenType.RIGHT_PAREN;
 import static com.thecout.lox.TokenType.SEMICOLON;
-import static com.thecout.lox.TokenType.VAR;
-import static com.thecout.lox.TokenType.WHILE;
-import static com.thecout.lox.TokenType.BANG;
 import static com.thecout.lox.TokenType.SLASH;
 import static com.thecout.lox.TokenType.STAR;
-import static com.thecout.lox.TokenType.AND;
-import static com.thecout.lox.TokenType.EQUAL_EQUAL;
-import static com.thecout.lox.TokenType.BANG_EQUAL;
-import static com.thecout.lox.TokenType.DOT;
+import static com.thecout.lox.TokenType.VAR;
+import static com.thecout.lox.TokenType.WHILE;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.thecout.lox.Token;
@@ -98,16 +102,26 @@ public class Parser {
         return expressionStatement();
     }
 
-    private Stmt forStatement() { // TODO
+    private Stmt forStatement() {
     	consume(LEFT_PAREN, "Expect '(' after 'for'.");
+    	Stmt initializer = null;
+    	Expr increment = null;
+    	Expr condition = null;
     	if (match(VAR)) {
-    		varDeclaration();
+    		initializer = varDeclaration();
     	} else if (!match(SEMICOLON)) {
-    		expressionStatement();
+    		initializer = expressionStatement();
     	}
+    	
+    	if (!match(SEMICOLON)) {
+    		condition = expression();
+    		consume(SEMICOLON, "Expected ';'.");
+    	}
+    	increment = expression();
     	consume(RIGHT_PAREN, "Expect ')' after 'for' stmt.");
     	Stmt stmt = statement();
-        return new While(null, stmt);
+    	Block body = new Block(Arrays.asList(stmt, new Expression(increment)));
+        return new Block(Arrays.asList(initializer, new While(condition, body)));
     }
 
     private Stmt ifStatement() {
@@ -130,7 +144,10 @@ public class Parser {
         return new Print(expr);
     }
 
-    private Stmt returnStatement() { // TODO: how to test if expression or something like this is there?
+    private Stmt returnStatement() {
+    	if (match(SEMICOLON)) {
+    		return new Return(tokens.get(current), null);
+    	} 
     	Expr expr = expression();
     	consume(SEMICOLON, "Expected ';' at end of return stmt.");
         return new Return(tokens.get(current), expr);
@@ -182,12 +199,9 @@ public class Parser {
     }
 
     private Expr assignment() {
-    	Expr expr = null;
-    	if (match(IDENTIFIER)) {
-    		consume(EQUAL, "Expected '=' after identifier for assignment.");
+    	Expr expr = or();
+    	if (match(EQUAL)) {
     		expr = assignment();
-    	} else {
-    		expr = or();
     	}
         return new Assign(previous(), expr);
     }
@@ -224,9 +238,9 @@ public class Parser {
         return comp;
     }
 
-    private Expr comparison() { // TODO
+    private Expr comparison() {
     	Expr add = addition();
-    	while(match(MINUS) || match(PLUS)) {
+    	while(match(GREATER) || match(GREATER_EQUAL) || match(LESS) || match(LESS_EQUAL)) {
     		Token operator = previous();
     		Expr right = addition();
     		add = new Binary(add, operator, right);
