@@ -275,10 +275,6 @@ public class Parser {
         return call();
     }
 
-    private Expr finishCall(Expr callee) {
-        return null;
-    }
-
     private Expr call() {
     	Expr expr = primary();
     	List<Expr> exprs = new ArrayList<>();

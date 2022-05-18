@@ -14,4 +14,9 @@ public class Print extends Stmt {
     public String print() {
         return "(print %s)".formatted(expression.print());
     }
+
+    @Override
+    public <R> R accept(StmtVisitor<R> stmtVisitor) {
+        return null;
+    }
 }

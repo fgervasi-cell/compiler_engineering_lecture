@@ -16,4 +16,9 @@ public class While extends Stmt {
     public String print() {
         return "(while %s %s)".formatted(condition.print(), body.print());
     }
+
+    @Override
+    public <R> R accept(StmtVisitor<R> stmtVisitor) {
+        return null;
+    }
 }

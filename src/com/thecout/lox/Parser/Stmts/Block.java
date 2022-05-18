@@ -14,4 +14,9 @@ public class Block extends Stmt {
     public String print() {
         return "(%s)".formatted(statements.stream().map(Stmt::print).collect(Collectors.joining("\n")));
     }
+
+    @Override
+    public <R> R accept(StmtVisitor<R> stmtVisitor) {
+        return null;
+    }
 }
