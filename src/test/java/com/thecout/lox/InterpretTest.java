@@ -76,37 +76,53 @@ public class InterpretTest {
             print printSum(2,5);
             
             """;
+    
+    static final String simpleTest = """
+    		print 1+2;
+    		""";
+    
     @Test
-    void loopTest2() {
+    void simpleTest() { // works
+    	 Scanner scanner = new Scanner(simpleTest);
+         List<Token> actual = scanner.scan();
+         Parser parser = new Parser(actual);
+         Interpreter interpreter = new Interpreter();
+         List<Stmt> statements = parser.parse();
+         interpreter.interpret(statements);
+    }
+    
+    @Test
+    void loopTest2() { // works
         Scanner scanner = new Scanner(looptest2);
         List<Token> actual = scanner.scan();
         Parser parser = new Parser(actual);
         Interpreter interpreter = new Interpreter();
         List<Stmt> statements = parser.parse();
         interpreter.interpret(statements);
-        assertEquals("5", outContent.toString().trim(), "Loop test 1 should eval to 5");
+        assertEquals("5.0", outContent.toString().trim(), "Loop test 1 should eval to 5");
         outContent.reset();
     }
     @Test
-    void loopTest() {
+    void loopTest() { // works
         Scanner scanner = new Scanner(looptest);
         List<Token> actual = scanner.scan();
         Parser parser = new Parser(actual);
         Interpreter interpreter = new Interpreter();
         List<Stmt> statements = parser.parse();
         interpreter.interpret(statements);
-        assertEquals("5", outContent.toString().trim(), "Loop test 1 should eval to 5");
+        assertEquals("5.0", outContent.toString().trim(), "Loop test 1 should eval to 5");
         outContent.reset();
     }
     @Test
-    void conditionalTest() {
+    void conditionalTest() { // works
         Scanner scanner = new Scanner(conditionaltest1);
         List<Token> actual = scanner.scan();
         Parser parser = new Parser(actual);
         Interpreter interpreter = new Interpreter();
         List<Stmt> statements = parser.parse();
+        outContent.reset();
         interpreter.interpret(statements);
-        assertEquals("6", outContent.toString().trim(), "Conditional test 1 should eval to 6");
+        assertEquals("6.0", outContent.toString().trim(), "Conditional test 1 should eval to 6");
         outContent.reset();
     }
     @Test
@@ -117,24 +133,24 @@ public class InterpretTest {
         Interpreter interpreter = new Interpreter();
         List<Stmt> statements = parser.parse();
         interpreter.interpret(statements);
-        assertEquals("13", outContent.toString().trim(), "Arithmetic test 2 should eval to 13");
+        assertEquals("13.0", outContent.toString().trim(), "Arithmetic test 2 should eval to 13");
         outContent.reset();
     }
 
     @Test
-    void arithmeticTest() {
+    void arithmeticTest() { // works
         Scanner scanner = new Scanner(arithmetic1);
         List<Token> actual = scanner.scan();
         Parser parser = new Parser(actual);
         Interpreter interpreter = new Interpreter();
         List<Stmt> statements = parser.parse();
         interpreter.interpret(statements);
-        assertEquals("7", outContent.toString().trim(), "Arithmetic test 1 should eval to 7");
+        assertEquals("7.0", outContent.toString().trim(), "Arithmetic test 1 should eval to 7");
         outContent.reset();
     }
 
     @Test
-    void noFailTest() {
+    void noFailTest() { // works
         Scanner scanner = new Scanner(program);
         List<Token> actual = scanner.scan();
         Parser parser = new Parser(actual);

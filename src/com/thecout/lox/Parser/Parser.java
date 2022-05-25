@@ -146,11 +146,11 @@ public class Parser {
 
     private Stmt returnStatement() {
     	if (match(SEMICOLON)) {
-    		return new Return(tokens.get(current), null);
+    		return new Return(null);
     	} 
     	Expr expr = expression();
     	consume(SEMICOLON, "Expected ';' at end of return stmt.");
-        return new Return(tokens.get(current), expr);
+        return new Return(expr);
     }
 
     private Stmt varDeclaration() {
@@ -201,9 +201,13 @@ public class Parser {
     private Expr assignment() {
     	Expr expr = or();
     	if (match(EQUAL)) {
-    		expr = assignment();
+    		Expr value = assignment();
+    		if (expr instanceof Variable) {
+    			Token name = ((Variable) expr).name;
+    			return new Assign(name, value);
+    		}
     	}
-        return new Assign(previous(), expr);
+        return expr;
     }
 
     private Expr or() {
@@ -263,7 +267,7 @@ public class Parser {
     	while (match(SLASH) || match(STAR)) {
     		Token operator = previous();
     		Expr right = unary();
-    		unary = new Unary(operator, right);
+    		unary = new Binary(unary, operator, right);
     	}
         return unary;
     }
@@ -277,12 +281,15 @@ public class Parser {
 
     private Expr call() {
     	Expr expr = primary();
-    	List<Expr> exprs = new ArrayList<>();
     	if (match(LEFT_PAREN)) {
-    		exprs = arguments();
+    		List<Expr> exprs = new ArrayList<>();
+    		if (this.peek().type != RIGHT_PAREN) {
+    			exprs = arguments();
+    		}
     		consume(RIGHT_PAREN, "Expected ')'.");
+    		return new Call(expr, exprs);
     	}
-        return new Call(expr, exprs);
+    	return expr;
     }
     
     private List<Expr> arguments() {

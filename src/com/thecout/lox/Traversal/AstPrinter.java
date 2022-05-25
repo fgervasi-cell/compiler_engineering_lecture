@@ -12,84 +12,85 @@ public class AstPrinter implements ExprVisitor<String>, StmtVisitor<String> {
         return stmt.accept(this);
     }
 
-
+    // theoretisch kann/sollte hier verschiedenes verhalten implementiert werden
+    
     @Override
     public String visitAssignExpr(Assign expr) {
-        return null;
+        return expr.print();
     }
 
     @Override
     public String visitBinaryExpr(Binary expr) {
-        return null;
+        return expr.print();
     }
 
     @Override
     public String visitCallExpr(Call expr) {
-        return null;
+        return expr.print();
     }
 
     @Override
     public String visitGroupingExpr(Grouping expr) {
-        return null;
+        return expr.print();
     }
 
     @Override
     public String visitLiteralExpr(Literal expr) {
-        return null;
+        return expr.print();
     }
 
     @Override
     public String visitLogicalExpr(Logical expr) {
-        return null;
+        return expr.print();
     }
 
     @Override
     public String visitUnaryExpr(Unary expr) {
-        return null;
+        return expr.print();
     }
 
     @Override
     public String visitVariableExpr(Variable expr) {
-        return null;
+        return expr.print();
     }
 
     @Override
     public String visitBlockStmt(Block stmt) {
-        return null;
+        return stmt.print();
     }
 
     @Override
     public String visitExpressionStmt(Expression stmt) {
-        return null;
+        return stmt.print();
     }
 
     @Override
     public String visitFunctionStmt(Function stmt) {
-        return null;
+        return stmt.print();
     }
 
     @Override
     public String visitIfStmt(If stmt) {
-        return null;
+        return stmt.print();
     }
 
     @Override
     public String visitPrintStmt(Print stmt) {
-        return null;
+        return stmt.print();
     }
 
     @Override
     public String visitReturnStmt(Return stmt) {
-        return null;
+        return stmt.print();
     }
 
     @Override
     public String visitVarStmt(Var stmt) {
-        return null;
+        return stmt.print();
     }
 
     @Override
     public String visitWhileStmt(While stmt) {
-        return null;
+        return stmt.print();
     }
 }
