@@ -8,8 +8,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.thecout.lox.Parser.Parser;
-import com.thecout.lox.Parser.Expr.Assign;
-import com.thecout.lox.Parser.Expr.Call;
 import com.thecout.lox.Parser.Expr.Literal;
 import com.thecout.lox.Parser.Stmts.Block;
 import com.thecout.lox.Parser.Stmts.Function;
@@ -54,9 +52,7 @@ public class ParserTest {
     	assertTrue(w.body instanceof Block, "Expected Type Block as body");
     	assertTrue(((Block) w.body).statements.get(0) instanceof Print, "Expected Type Print in body");
     	Print p = (Print) ((Block) w.body).statements.get(0);
-    	assertTrue(p.expression instanceof Assign, "Expected Assign got " + p.expression.getClass().getName());
-    	assertTrue(w.condition instanceof Assign, "Expected Assign got " + w.condition.getClass().getName());
-    	Assign cond = (Assign) w.condition;
-    	assertTrue(((Call)cond.value).callee instanceof Literal, "Expected boolean literal 'true'");
+    	assertTrue(p.expression instanceof Literal, "Expected Assign got " + p.expression.getClass().getName());
+    	assertTrue(w.condition instanceof Literal, "Expected Assign got " + w.condition.getClass().getName());
     }
 }
